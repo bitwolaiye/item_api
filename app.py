@@ -3,11 +3,11 @@ import os
 from tornado import web
 from tornado.ioloop import IOLoop
 from handlers import DefaultHandler
-from settings import app_port
+from settings import app_port, url_pre
 
 __author__ = 'zhouqi'
 
-application = web.Application([
+routs = [
     # (r"/api/v1/job", DefaultHandler),
     # (r"/api/v1/job/([0-9a-zA-Z_-]+)", JobDetailHandler),
     # (r"/api/v1/job/([0-9a-zA-Z_-]+)/run", JobRunHandler),
@@ -15,7 +15,13 @@ application = web.Application([
     # (r"/api/v1/jenkins/notify", JenkinsNotifyHandler),
     # (r"/api/v1/callback/sample", CallbackSampleHandler),
     (r"/", DefaultHandler),
-], debug=True)
+]
+
+new_routs = []
+for r in routs:
+    new_routs.append(tuple([url_pre + r[0]] + list(r[1:])))
+
+application = web.Application(new_routs, debug=True)
 
 if __name__ == "__main__":
     with open('pid', 'w') as f:
