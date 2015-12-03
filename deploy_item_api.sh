@@ -2,7 +2,7 @@
 kill -9 `cat item_api/pid`
 #rm item_api/pid
 if [ "$1" = "recreate_db" ]; then
-    psql -dpostgres < db/data/recreate_db.sql
+    psql -Uitem_api -dpostgres < db/data/recreate_db.sql
 elif [ "$1" = "reload" ]; then
     echo "reload"
 else

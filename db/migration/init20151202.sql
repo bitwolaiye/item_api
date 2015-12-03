@@ -7,16 +7,24 @@ CREATE TABLE items
   PRIMARY KEY (item_id)
 );
 
-CREATE TABLE item_users
+CREATE TABLE users
 (
   user_id SERIAL NOT NULL,
+  user_name TEXT NOT NULL ,
   PRIMARY KEY (user_id)
+);
+
+CREATE TABLE user_items
+(
+  user_id INTEGER NOT NULL REFERENCES users ON DELETE CASCADE,
+  item_id INTEGER NOT NULL REFERENCES items ON DELETE CASCADE,
+  PRIMARY KEY (user_id, item_id)
 );
 
 CREATE TABLE item_buy_histories
 (
   buy_history_id SERIAL    NOT NULL,
-  user_id        INTEGER   NOT NULL REFERENCES item_users ON DELETE CASCADE,
+  user_id        INTEGER   NOT NULL REFERENCES users ON DELETE CASCADE,
   item_id        INTEGER   NOT NULL REFERENCES items ON DELETE CASCADE,
   buy_time       TIMESTAMP NOT NULL,
   PRIMARY KEY (buy_history_id)
