@@ -23,7 +23,9 @@ def ensure_type(obj):
     :param obj: 对象
     :return: 可被json序列化的对象
     """
-    if obj.__class__ is datetime or obj.__class__ is date:
+    if obj.__class__ is datetime:
+        return obj.isoformat().split('.')[0] + '.000Z'
+    elif obj.__class__ is date:
         return str(obj)
     elif obj.__class__ is Decimal:
         return str(obj)
