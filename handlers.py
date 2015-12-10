@@ -44,7 +44,7 @@ class UserItemHandler(BaseHandler):
         sql = 'select %s from user_items a, items b where a.item_id=b.item_id and a.user_id=%d and a.item_id=%d'
         cur.execute(sql % (', '.join(sql_fields), user_id, item_id))
         result = format_records_to_json(fields, cur.fetchall())
-        self.write({'items': result})
+        self.write(result[0])
 
 
 class UserItemRawHandler(BaseHandler):
@@ -55,4 +55,4 @@ class UserItemRawHandler(BaseHandler):
         sql = 'select %s from user_items a, items b where a.item_id=b.item_id and a.user_id=%d and a.item_id=%d'
         cur.execute(sql % (', '.join(sql_fields), user_id, item_id))
         result = format_records_to_json(fields, cur.fetchall())
-        self.write({'items': result})
+        self.write(result[0])

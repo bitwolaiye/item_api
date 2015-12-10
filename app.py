@@ -15,7 +15,7 @@ routs = [
     # (r"/api/v1/jenkins/notify", JenkinsNotifyHandler),
     (r"/api/v1/user/([0-9]+)/item", UserItemListHandler),
     (r"/api/v1/user/([0-9]+)/item/([0-9]+)", UserItemHandler),
-    (r"/(0-9a-zA-Z)", UserItemRawHandler),
+    (r"/([0-9a-zA-Z]{4,6})", UserItemRawHandler),
     (r"/", DefaultHandler),
 ]
 
