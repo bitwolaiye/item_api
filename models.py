@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, date
 from decimal import Decimal
+import json
+import os
+from hashlib import md5
 
 import psycopg2
+import leveldb
 
 from settings import db_host, db_name, db_user, db_password, db_port
 
@@ -61,3 +65,62 @@ class Item(BaseModel):
 class User(BaseModel):
     pass
 
+
+class Index(object):
+    _instance = None
+    _db = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            path = './db/ldb/'
+            if not os.path.exists(path):
+                os.mkdir(path)
+            cls._instance = super(Index, cls).__new__(cls, *args, **kwargs)
+            cls._db = leveldb.LevelDB(path + '/indexdb')
+        return cls._instance
+
+    def set(self, obj):
+        key = self.hash(obj.__str__())
+        while self._get_from_ldb(key) is not None:
+            key = self.hash(key)
+        self._db.Put(key, self._encode(obj))
+        return key
+
+    def _get_from_ldb(self, key):
+        try:
+            return self._db.Get(key)
+        except KeyError:
+            return None
+
+    def get(self, raw):
+        try:
+            content = self._db.Get(raw)
+        except KeyError:
+            content = None
+        if content is not None:
+            return self._decode(content)
+        else:
+            return None
+
+    def update(self, raw, obj):
+        try:
+            content = self._db.Get(raw)
+        except KeyError:
+            content = None
+        if content is not None:
+            self._db.Put(raw, self._encode(obj))
+            return True
+        else:
+            return False
+
+    def hash(self, str):
+        # need use base62 or base58
+        return md5('\x00' + str).hexdigest()[:6]
+
+    def _decode(self, encoded_content):
+        # use json for save dev time, can use binary struct to save it
+        return json.loads(encoded_content)
+
+    def _encode(self, obj):
+        # use json for save dev time, can use binary struct to save it
+        return json.dumps(obj)

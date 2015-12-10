@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from tornado.web import RequestHandler
 import json
-from models import cur, format_records_to_json
+from models import cur, format_records_to_json, Index
 
 __author__ = 'zhouqi'
 
@@ -14,7 +14,8 @@ class BaseHandler(RequestHandler):
 
 
 def get_info_from_raw(raw):
-    return (1, 1)
+    return Index().get(raw)
+    # return (1, 1)
 
 class DefaultHandler(BaseHandler):
     def get(self):
@@ -49,10 +50,14 @@ class UserItemHandler(BaseHandler):
 
 class UserItemRawHandler(BaseHandler):
     def get(self, raw):
-        item_id, user_id = get_info_from_raw(raw)
-        fields = ['item_id', 'item_name', 'item_desc', 'item_price']
-        sql_fields = ['b.%s' % e for e in fields]
-        sql = 'select %s from user_items a, items b where a.item_id=b.item_id and a.user_id=%d and a.item_id=%d'
-        cur.execute(sql % (', '.join(sql_fields), user_id, item_id))
-        result = format_records_to_json(fields, cur.fetchall())
-        self.write(result[0])
+        info = get_info_from_raw(raw)
+        if info is None:
+            self.set_status(404)
+        else:
+            item_id, user_id = info[:2]
+            fields = ['item_id', 'item_name', 'item_desc', 'item_price']
+            sql_fields = ['b.%s' % e for e in fields]
+            sql = 'select %s from user_items a, items b where a.item_id=b.item_id and a.user_id=%d and a.item_id=%d'
+            cur.execute(sql % (', '.join(sql_fields), user_id, item_id))
+            result = format_records_to_json(fields, cur.fetchall())
+            self.write(result[0])
