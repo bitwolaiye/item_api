@@ -15,7 +15,7 @@ class BaseHandler(RequestHandler):
 
 def get_info_from_raw(raw):
     return Index().get(raw)
-    # return (1, 1)
+
 
 class DefaultHandler(BaseHandler):
     def get(self):
@@ -86,7 +86,14 @@ class UserItemRawHandler(BaseHandler):
             sql = 'select %s from user_items a, items b where a.item_id=b.item_id and a.user_id=%d and a.item_id=%d'
             cur.execute(sql % (', '.join(sql_fields), user_id, item_id))
             result = format_records_to_json(fields, cur.fetchall())
+            fields = ['buy_history_id', 'item_price', 'buy_time']
+            sql_fields = ['a.%s' % e for e in fields]
+            sql = 'select %s from item_buy_histories a where a.user_id=%d and a.item_id=%d'
+            cur.execute(sql % (', '.join(sql_fields), user_id, item_id))
+            histories = format_records_to_json(fields, cur.fetchall())
+            result[0]['histories'] = histories
             self.write(result[0])
+
 
 class UserItemRawShowHandler(BaseHandler):
     def get(self, raw):
