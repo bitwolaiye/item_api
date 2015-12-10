@@ -10,7 +10,10 @@ CREATE TABLE items
 CREATE TABLE users
 (
   user_id SERIAL NOT NULL,
-  user_name TEXT NOT NULL ,
+  user_name TEXT,
+  user_phone TEXT,
+  user_email TEXT,
+  user_address TEXT,
   PRIMARY KEY (user_id)
 );
 

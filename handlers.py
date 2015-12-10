@@ -61,6 +61,9 @@ class UserItemBuyHandler(BaseHandler):
         sql = 'select item_id, item_name,item_desc,item_price from items where item_id=%d'
         cur.execute(sql % item_id)
         item = cur.fetchone()
+        if item is None:
+            self.set_status(404)
+            return
         sql = 'INSERT INTO item_buy_histories(user_id, item_id, buy_time, item_price) VALUES (%d, %d, now(), %s) RETURNING buy_history_id'
         cur.execute(sql % (user_id, item_id, str(item[3])))
         buy_history_id = cur.fetchone()[0]
