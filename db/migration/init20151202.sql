@@ -26,6 +26,7 @@ CREATE TABLE item_buy_histories
   buy_history_id SERIAL    NOT NULL,
   user_id        INTEGER   NOT NULL REFERENCES users ON DELETE CASCADE,
   item_id        INTEGER   NOT NULL REFERENCES items ON DELETE CASCADE,
+  item_price     DECIMAL   NOT NULL,
   buy_time       TIMESTAMP NOT NULL,
   raw            TEXT,
   PRIMARY KEY (buy_history_id)

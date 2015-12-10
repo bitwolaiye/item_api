@@ -2,7 +2,7 @@
 import os
 from tornado import web
 from tornado.ioloop import IOLoop
-from handlers import DefaultHandler, UserItemListHandler, UserItemHandler, UserItemRawHandler
+from handlers import DefaultHandler, UserItemListHandler, UserItemHandler, UserItemRawHandler, IndexGenHandler, UserItemBuyHandler
 from settings import app_port, url_pre
 
 __author__ = 'zhouqi'
@@ -15,6 +15,8 @@ routs = [
     # (r"/api/v1/jenkins/notify", JenkinsNotifyHandler),
     (r"/api/v1/user/([0-9]+)/item", UserItemListHandler),
     (r"/api/v1/user/([0-9]+)/item/([0-9]+)", UserItemHandler),
+    (r"/api/v1/user/([0-9]+)/item/([0-9]+)/buy", UserItemBuyHandler),
+    (r"/api/v1/index/gen/([0-9]+)", IndexGenHandler),
     (r"/([0-9a-zA-Z]{4,6})", UserItemRawHandler),
     (r"/", DefaultHandler),
 ]

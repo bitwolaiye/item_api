@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from tornado.web import RequestHandler
 import json
-from models import cur, format_records_to_json, Index
+from models import cur, db, format_records_to_json, Index
 
 __author__ = 'zhouqi'
 
@@ -48,6 +48,29 @@ class UserItemHandler(BaseHandler):
         self.write(result[0])
 
 
+class UserItemBuyHandler(BaseHandler):
+    def post(self, user_id, item_id):
+        user_id = int(user_id)
+        item_id = int(item_id)
+        sql = 'select user_id,user_name from users where user_id=%d'
+        cur.execute(sql % user_id)
+        user = cur.fetchone()
+        if user is None:
+            self.set_status(404)
+            return
+        sql = 'select item_id, item_name,item_desc,item_price from items where item_id=%d'
+        cur.execute(sql % item_id)
+        item = cur.fetchone()
+        sql = 'INSERT INTO item_buy_histories(user_id, item_id, buy_time, item_price) VALUES (%d, %d, now(), %s) RETURNING buy_history_id'
+        cur.execute(sql % (user_id, item_id, str(item[3])))
+        buy_history_id = cur.fetchone()[0]
+        raw = Index().set((item_id, user_id, buy_history_id))
+        sql = "update item_buy_histories set raw='%s' where buy_history_id=%d"
+        cur.execute(sql % (raw, buy_history_id))
+        db.commit()
+        self.write({'raw': raw})
+
+
 class UserItemRawHandler(BaseHandler):
     def get(self, raw):
         info = get_info_from_raw(raw)
@@ -61,3 +84,11 @@ class UserItemRawHandler(BaseHandler):
             cur.execute(sql % (', '.join(sql_fields), user_id, item_id))
             result = format_records_to_json(fields, cur.fetchall())
             self.write(result[0])
+
+
+class IndexGenHandler(BaseHandler):
+    def post(self, cnt):
+        result = []
+        for i in range(cnt):
+            result.append(Index().set([]))
+        self.write({'indexes': result})

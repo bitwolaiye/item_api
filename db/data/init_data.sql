@@ -13,16 +13,4 @@ INSERT INTO user_items (user_id, item_id) VALUES (1, 3);
 INSERT INTO user_items (user_id, item_id) VALUES (1, 4);
 INSERT INTO user_items (user_id, item_id) VALUES (1, 5);
 
-INSERT INTO item_buy_histories(user_id, item_id, buy_time) VALUES (1, 1, now() - interval '3 day');
-INSERT INTO item_buy_histories(user_id, item_id, buy_time) VALUES (1, 1, now() - interval '2 day');
-
-INSERT INTO item_buy_histories(user_id, item_id, buy_time) VALUES (1, 2, now() - interval '2 day');
-INSERT INTO item_buy_histories(user_id, item_id, buy_time) VALUES (1, 2, now() - interval '1 day');
-
-INSERT INTO item_buy_histories(user_id, item_id, buy_time) VALUES (1, 3, now() - interval '7 day');
-
-INSERT INTO item_buy_histories(user_id, item_id, buy_time) VALUES (1, 4, now() - interval '4 day');
-
-INSERT INTO item_buy_histories(user_id, item_id, buy_time) VALUES (1, 5, now() - interval '1 day');
-
 COMMIT;
