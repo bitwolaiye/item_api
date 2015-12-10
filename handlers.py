@@ -88,6 +88,20 @@ class UserItemRawHandler(BaseHandler):
             result = format_records_to_json(fields, cur.fetchall())
             self.write(result[0])
 
+class UserItemRawShowHandler(BaseHandler):
+    def get(self, raw):
+        info = get_info_from_raw(raw)
+        if info is None:
+            self.set_status(404)
+        else:
+            item_id, user_id = info[:2]
+            fields = ['item_id', 'item_name', 'item_desc', 'item_price']
+            sql_fields = ['b.%s' % e for e in fields]
+            sql = 'select %s from user_items a, items b where a.item_id=b.item_id and a.user_id=%d and a.item_id=%d'
+            cur.execute(sql % (', '.join(sql_fields), user_id, item_id))
+            result = format_records_to_json(fields, cur.fetchall())
+            self.render("templates/order.html", title="Order", items=None)
+
 
 class IndexGenHandler(BaseHandler):
     def post(self, cnt):
