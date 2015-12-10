@@ -102,6 +102,9 @@ class UserItemRawShowHandler(BaseHandler):
             result = format_records_to_json(fields, cur.fetchall())
             self.render("templates/order.html", title="Order", items=None)
 
+    def post(self, raw):
+        self.render("templates/order_success.html", title="Order", items=None)
+
 
 class IndexGenHandler(BaseHandler):
     def post(self, cnt):
