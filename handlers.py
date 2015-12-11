@@ -131,7 +131,7 @@ class DeviceNotificationHandler(BaseHandler):
     def post(self, token):
         content = self.get_argument('content')
         apns = APNs(use_sandbox=True, cert_file=notification_cert_path, key_file=notification_key_path)
-        payload = Payload(alert=content, sound="default")
+        payload = Payload(alert=content, sound="default", badge=1)
         apns.gateway_server.send_notification(token, payload)
         self.write({'result': True})
 
