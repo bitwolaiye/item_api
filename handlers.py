@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from tornado.web import RequestHandler
 import json
+from apns import APNs, Frame, Payload
 from models import cur, db, format_records_to_json, Index
+from settings import notification_key_path, notification_cert_path
 
 __author__ = 'zhouqi'
 
@@ -48,7 +50,7 @@ class UserItemHandler(BaseHandler):
         self.write(result[0])
 
 
-class UserItemBuyHandler(BaseHandler):
+class UserItemOrderHandler(BaseHandler):
     def post(self, user_id, item_id):
         user_id = int(user_id)
         item_id = int(item_id)
@@ -64,12 +66,12 @@ class UserItemBuyHandler(BaseHandler):
         if item is None:
             self.set_status(404)
             return
-        sql = 'INSERT INTO item_buy_histories(user_id, item_id, buy_time, item_price) VALUES (%d, %d, now(), %s) RETURNING buy_history_id'
+        sql = 'INSERT INTO orders(user_id, item_id, buy_time, item_price) VALUES (%d, %d, now(), %s) RETURNING order_id'
         cur.execute(sql % (user_id, item_id, str(item[3])))
-        buy_history_id = cur.fetchone()[0]
-        raw = Index().set((item_id, user_id, buy_history_id))
-        sql = "update item_buy_histories set raw='%s' where buy_history_id=%d"
-        cur.execute(sql % (raw, buy_history_id))
+        order_id = cur.fetchone()[0]
+        raw = Index().set((item_id, user_id, order_id))
+        sql = "update orders set raw='%s' where order_id=%d"
+        cur.execute(sql % (raw, order_id))
         db.commit()
         self.write({'raw': raw})
 
@@ -86,12 +88,12 @@ class UserItemRawHandler(BaseHandler):
             sql = 'select %s from user_items a, items b where a.item_id=b.item_id and a.user_id=%d and a.item_id=%d'
             cur.execute(sql % (', '.join(sql_fields), user_id, item_id))
             result = format_records_to_json(fields, cur.fetchall())
-            fields = ['buy_history_id', 'item_price', 'buy_time']
+            fields = ['order_id', 'item_price', 'buy_time']
             sql_fields = ['a.%s' % e for e in fields]
-            sql = 'select %s from item_buy_histories a where a.user_id=%d and a.item_id=%d'
+            sql = 'select %s from orders a where a.user_id=%d and a.item_id=%d'
             cur.execute(sql % (', '.join(sql_fields), user_id, item_id))
-            histories = format_records_to_json(fields, cur.fetchall())
-            result[0]['histories'] = histories
+            orders = format_records_to_json(fields, cur.fetchall())
+            result[0]['orders'] = orders
             self.write(result[0])
 
 
@@ -111,6 +113,27 @@ class UserItemRawShowHandler(BaseHandler):
 
     def post(self, raw):
         self.render("templates/order_success.html", title="Order", items=None)
+
+class UserItemRawNotificationHandler(BaseHandler):
+    def post(self, raw):
+        info = get_info_from_raw(raw)
+        if info is None:
+            self.set_status(404)
+        else:
+            order_id = info[-1]
+            token = self.get_argument('token')
+            sql = "insert into order_devices(order_id, device_token) VALUES (%d, '%s')"
+            cur.execute(sql % (order_id, token))
+            db.commit()
+            self.write({'result': True})
+
+class DeviceNotificationHandler(BaseHandler):
+    def post(self, token):
+        content = self.get_argument('content')
+        apns = APNs(use_sandbox=True, cert_file=notification_cert_path, key_file=notification_key_path)
+        payload = Payload(alert=content, sound="default")
+        apns.gateway_server.send_notification(token, payload)
+        self.write({'result': True})
 
 
 class IndexGenHandler(BaseHandler):

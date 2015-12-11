@@ -3,22 +3,21 @@ import os
 from tornado import web
 from tornado.ioloop import IOLoop
 from handlers import DefaultHandler, UserItemListHandler, UserItemHandler, UserItemRawHandler, \
-    IndexGenHandler, UserItemBuyHandler, UserItemRawShowHandler
+    IndexGenHandler, UserItemOrderHandler, UserItemRawShowHandler, UserItemRawNotificationHandler, \
+    DeviceNotificationHandler
 from settings import app_port, url_pre
 
 __author__ = 'zhouqi'
 
 routs = [
-    # (r"/api/v1/job", DefaultHandler),
-    # (r"/api/v1/job/([0-9a-zA-Z_-]+)", JobDetailHandler),
-    # (r"/api/v1/job/([0-9a-zA-Z_-]+)/run", JobRunHandler),
-    # (r"/api/v1/job/([0-9a-zA-Z_-]+)/run/([0-9]+)", JobRunDetailHandler),
-    # (r"/api/v1/jenkins/notify", JenkinsNotifyHandler),
     (r"/api/v1/user/([0-9]+)/item", UserItemListHandler),
     (r"/api/v1/user/([0-9]+)/item/([0-9]+)", UserItemHandler),
-    (r"/api/v1/user/([0-9]+)/item/([0-9]+)/buy", UserItemBuyHandler),
+    (r"/api/v1/user/([0-9]+)/item/([0-9]+)/order", UserItemOrderHandler),
+    (r"/api/v1/user/([0-9]+)/item/([0-9]+)/order/([0-9]+)", UserItemOrderHandler),
     (r"/api/v1/index/gen/([0-9]+)", IndexGenHandler),
+    (r"/api/v1/device/([0-9a-zA-Z]+)/notification", DeviceNotificationHandler),
     (r"/([0-9a-zA-Z]{4,6})/show", UserItemRawShowHandler),
+    (r"/([0-9a-zA-Z]{4,6})/notification", UserItemRawNotificationHandler),
     (r"/([0-9a-zA-Z]{4,6})", UserItemRawHandler),
     (r"/", DefaultHandler),
 ]

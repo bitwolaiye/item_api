@@ -11,7 +11,11 @@ db_host = '127.0.0.1'
 
 url_pre = '/item'
 
-settings_fields = ['db_name', 'db_user', 'db_port', 'db_password', 'db_host', 'url_pre']
+notification_key_path = 'key/key.pem'
+notification_cert_path = 'key/cert.pem'
+
+settings_fields = ['db_name', 'db_user', 'db_port', 'db_password', 'db_host', 'url_pre',
+                   'notification_key_path', 'notification_cert_path']
 
 
 def load_addition_config():

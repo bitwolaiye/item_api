@@ -24,38 +24,38 @@ CREATE TABLE user_items
   PRIMARY KEY (user_id, item_id)
 );
 
-CREATE TABLE item_buy_histories
+CREATE TABLE orders
 (
-  buy_history_id SERIAL    NOT NULL,
-  user_id        INTEGER   NOT NULL REFERENCES users ON DELETE CASCADE,
-  item_id        INTEGER   NOT NULL REFERENCES items ON DELETE CASCADE,
-  item_price     DECIMAL   NOT NULL,
-  buy_time       TIMESTAMP NOT NULL,
-  raw            TEXT,
-  PRIMARY KEY (buy_history_id)
+  order_id   SERIAL    NOT NULL,
+  user_id    INTEGER   NOT NULL REFERENCES users ON DELETE CASCADE,
+  item_id    INTEGER   NOT NULL REFERENCES items ON DELETE CASCADE,
+  item_price DECIMAL   NOT NULL,
+  buy_time   TIMESTAMP NOT NULL,
+  raw        TEXT,
+  PRIMARY KEY (order_id)
 );
 
-CREATE TABLE item_buy_history_steps
+CREATE TABLE order_stages
 (
-  buy_history_id        INTEGER NOT NULL,
-  buy_history_step_id   INTEGER NOT NULL,
-  buy_history_step      TEXT,
-  buy_history_step_time TEXT,
-  PRIMARY KEY (buy_history_id, buy_history_step_id)
+  order_id         INTEGER NOT NULL,
+  order_stage_id   INTEGER NOT NULL,
+  order_stage_name TEXT,
+  order_stage_time TEXT,
+  PRIMARY KEY (order_id, order_stage_id)
 );
 
-CREATE TABLE item_buy_history_devices
+CREATE TABLE order_devices
 (
-  buy_history_id INTEGER NOT NULL,
+  order_id     INTEGER NOT NULL,
+  device_token TEXT    NOT NULL,
+  PRIMARY KEY (order_id, device_token)
+);
+
+CREATE TABLE order_notifications
+(
+  order_id       INTEGER NOT NULL,
+  order_stage_id INTEGER NOT NULL,
   device_token   TEXT    NOT NULL,
-  PRIMARY KEY (buy_history_id, device_token)
-);
-
-CREATE TABLE item_buy_history_notifications
-(
-  buy_history_id      INTEGER NOT NULL,
-  buy_history_step_id INTEGER NOT NULL,
-  device_token        TEXT    NOT NULL,
-  push_time           TIMESTAMP,
-  PRIMARY KEY (buy_history_id, buy_history_step_id, device_token)
+  push_time      TIMESTAMP,
+  PRIMARY KEY (order_id, order_stage_id, device_token)
 );
