@@ -130,8 +130,9 @@ class UserItemRawNotificationHandler(BaseHandler):
 class DeviceNotificationHandler(BaseHandler):
     def post(self, token):
         content = self.get_argument('content')
+        badge = int(self.get_argument('badge', default=1))
         apns = APNs(use_sandbox=True, cert_file=notification_cert_path, key_file=notification_key_path)
-        payload = Payload(alert=content, sound="default", badge=1)
+        payload = Payload(alert=content, sound="default", badge=badge)
         apns.gateway_server.send_notification(token, payload)
         self.write({'result': True})
 
